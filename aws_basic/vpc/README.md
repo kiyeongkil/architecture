@@ -2,7 +2,12 @@
 
 ### **AWS CLI 설치**
 
-- linux [URL](https://docs.aws.amazon.com/ko_kr/cli/latest/userguide/install-cliv2-mac.html)
+- ubuntu 
+```
+$ sudo apt install python-setuptools python-pip -y
+$ pip install awscli
+```
+
 - windows [URL](https://docs.aws.amazon.com/ko_kr/cli/latest/userguide/install-cliv2-windows.html)
 
 터미널에서 AWS CLI 버전을 확인
