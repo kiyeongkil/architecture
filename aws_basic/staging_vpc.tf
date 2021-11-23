@@ -37,7 +37,7 @@ variable "office_cidr_blocks" {
 }
 
 variable "keypair_name" {
-  default = "2dal-dev"
+  default = "bastion"
 }
 
 module "vpc" {
@@ -51,24 +51,12 @@ module "vpc" {
   private_subnets  = ["10.0.101.0/24", "10.0.102.0/24"]
   database_subnets = ["10.0.201.0/24", "10.0.202.0/24"]
 
-  tags = {
-    "Name" = "basic"
-  }
-}
-
-module "bastion" {
-  source = "./bastion"
-
-  name = "bastion"
   vpc_id = "${module.vpc.vpc_id}"
-
   ami                 = "${data.aws_ami.amazon_linux.id}"
-  availability_zone   = "ap-northeast-2a"
-  subnet_id           = "${module.vpc.public_subnets_ids[0]}"
   ingress_cidr_blocks = "${var.office_cidr_blocks}"
   keypair_name        = "${var.keypair_name}"
 
   tags = {
-    "TerraformManaged" = "true"
+    "Name" = "basic"
   }
 }

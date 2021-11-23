@@ -32,31 +32,40 @@ Default output format [None]: json
 
 ## Inputs
 
-| Name             | Description                                 |  Type  | Default | Required |
-| ---------------- | ------------------------------------------- | :----: | :-----: | :------: |
-| azs              | 사용할 availability zones 리스트            |  list  |    -    |   yes    |
-| cidr             | VPC에 할당한 CIDR block                     | string |    -    |   yes    |
-| database_subnets | Database Subnet IP 리스트                   |  list  |    -    |   yes    |
-| name             | 모듈에서 정의하는 모든 리소스 이름의 prefix | string |    -    |   yes    |
-| private_subnets  | Private Subnet IP 리스트                    |  list  |    -    |   yes    |
-| public_subnets   | Public Subnet IP 리스트                     |  list  |    -    |   yes    |
-| tags             | 모든 리소스에 추가되는 tag 맵               |  map   |    -    |   yes    |
+| Name                | Description                                 |  Type  |  Default  | Required |
+| ------------------- | ------------------------------------------- | :----: | :-------: | :------: |
+| azs                 | 사용할 availability zones 리스트            |  list  |     -     |   yes    |
+| cidr                | VPC에 할당한 CIDR block                     | string |     -     |   yes    |
+| database_subnets    | Database Subnet IP 리스트                   |  list  |     -     |   yes    |
+| name                | 모듈에서 정의하는 모든 리소스 이름의 prefix | string |     -     |   yes    |
+| private_subnets     | Private Subnet IP 리스트                    |  list  |     -     |   yes    |
+| public_subnets      | Public Subnet IP 리스트                     |  list  |     -     |   yes    |
+| tags                | 모든 리소스에 추가되는 tag 맵               |  map   |     -     |   yes    |
+| ami                 | bastion 생성에 사용할 AMI                   | string |     -     |   yes    |
+| ingress_cidr_blocks | bastion SSH 접속을 허용할 CIDR block 리스트 |  list  |     -     |   yes    |
+| instance_type       | bastion EC2 instance type                   | string | `t2.nano` |    no    |
+| keypair_name        | bastion이 사용할 keypair name               | string |     -     |   yes    |
+| vpc_id              | VPC ID                                      | string |     -     |   yes    |
 
 ## Outputs
 
-| Name                      | Description                     |
-| ------------------------- | ------------------------------- |
-| database_subnet_group_id  | Database Subnet Group ID        |
-| database_subnets_ids      | Database Subnet ID 리스트       |
-| default_network_acl_id    | VPC default network ACL ID      |
-| default_security_group_id | VPC default Security Group ID   |
-| igw_id                    | internet gateway                |
-| nat_ids                   | NAT gateway                     |
-| nat_public_ips            | NAT Gateway에 할당된 EIP 리스트 |
-| natgw_ids                 | NAT Gateway ID 리스트           |
-| private_route_table_ids   | Private Route Table ID 리스트   |
-| private_subnets_ids       | subnets                         |
-| public_route_table_ids    | route tables                    |
-| public_subnets_ids        | Public Subnet ID 리스트         |
-| vpc_cidr_block            | VPC에 할당한 CIDR block         |
-| vpc_id                    | VPC                             |
+| Name                      | Description                              |
+| ------------------------- | ---------------------------------------- |
+| database_subnet_group_id  | Database Subnet Group ID                 |
+| database_subnets_ids      | Database Subnet ID 리스트                |
+| default_network_acl_id    | VPC default network ACL ID               |
+| default_security_group_id | VPC default Security Group ID            |
+| igw_id                    | internet gateway                         |
+| nat_ids                   | NAT gateway                              |
+| nat_public_ips            | NAT Gateway에 할당된 EIP 리스트          |
+| natgw_ids                 | NAT Gateway ID 리스트                    |
+| private_route_table_ids   | Private Route Table ID 리스트            |
+| private_subnets_ids       | subnets                                  |
+| public_route_table_ids    | route tables                             |
+| public_subnets_ids        | Public Subnet ID 리스트                  |
+| vpc_cidr_block            | VPC에 할당한 CIDR block                  |
+| vpc_id                    | VPC                                      |
+| bastion_sg_id             | Bastion에 접속하는 SG ID                 |
+| eip_id                    | Bastion에 할당된 EIP ID                  |
+| instance_id               | Bastion EC2 instance ID                  |
+| ssh_from_bastion_sg_id    | Bastion을 통한 SSH 연결을 허용하는 SG ID |
