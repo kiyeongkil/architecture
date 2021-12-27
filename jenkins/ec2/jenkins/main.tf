@@ -3,10 +3,10 @@ module "ec2" {
 
   name = local.ec2_name
 
-  ami                    = local.ami_id
-  key_name               = local.key_name
-  instance_type          = local.instance_type
-  availability_zone      = element(local.azs, 0)
+  ami                         = local.ami_id
+  key_name                    = local.key_name
+  instance_type               = local.instance_type
+  availability_zone           = element(local.azs, 0)
   subnet_id                   = element(local.private_subnet_ids, 0)
   vpc_security_group_ids      = [module.http.security_group_id, local.default_sg_id]
   iam_instance_profile        = module.iam.iam_instance_profile_name
@@ -15,6 +15,7 @@ module "ec2" {
   tags = local.tags
 }
 
+#http sg
 module "http" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "~> 4.0"
