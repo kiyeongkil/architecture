@@ -18,7 +18,7 @@ resource "aws_internet_gateway" "igw" {
   })
 }
 
-# default network ACL
+# public network ACL
 resource "aws_default_network_acl" "pub_nacl" {
   default_network_acl_id = "${aws_vpc.main.default_network_acl_id}"
 
@@ -47,9 +47,9 @@ resource "aws_default_network_acl" "pub_nacl" {
   })
 }
 
-# default network ACL
-resource "aws_default_network_acl" "pri_nacl" {
-  default_network_acl_id = "${aws_vpc.main.default_network_acl_id}"
+# private network ACL
+resource "aws_network_acl" "pri_nacl" {
+  vpc_id = aws_vpc.main.id
 
   ingress {
     protocol   = -1
@@ -73,6 +73,35 @@ resource "aws_default_network_acl" "pri_nacl" {
 
   tags = tomap({
     "Name" = "pri-${var.name}-default"
+  })
+}
+
+# database network ACL
+resource "aws_network_acl" "db_nacl" {
+  vpc_id = aws_vpc.main.id
+
+  ingress {
+    protocol   = -1
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 0
+  }
+
+  egress {
+    protocol   = -1
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 0
+  }
+
+  subnet_ids = aws_subnet.database[*].id
+
+  tags = tomap({
+    "Name" = "db-${var.name}-default"
   })
 }
 
@@ -108,7 +137,7 @@ resource "aws_subnet" "public" {
   availability_zone = "${var.azs[count.index]}"
 
   tags = tomap({
-    "Name" = "${var.name}-public-${count.index}"
+    "Name" = "${var.name}-public-${var.azs[count.index]}"
   })
 }
 
@@ -121,7 +150,32 @@ resource "aws_subnet" "private" {
   availability_zone = "${var.azs[count.index]}"
 
   tags = tomap({
-    "Name" = "${var.name}-private-${count.index}"
+    "Name" = "${var.name}-private-${var.azs[count.index]}"
+  })
+}
+
+# database subnet
+resource "aws_subnet" "database" {
+  count = "${length(var.database_subnets)}"
+
+  vpc_id            = "${aws_vpc.main.id}"
+  cidr_block        = "${var.database_subnets[count.index]}"
+  availability_zone = "${var.azs[count.index]}"
+
+  tags = tomap({
+    "Name" = "${var.name}-database-${var.azs[count.index]}"
+  })
+}
+
+resource "aws_db_subnet_group" "database" {
+  count = "${length(var.database_subnets) > 0 ? 1 : 0}"
+
+  name        = "${var.name}"
+  description = "Database subnet group for ${var.name}"
+  subnet_ids  = aws_subnet.database[*].id
+
+  tags = tomap({
+    "Name" = "${var.name}"
   })
 }
 
@@ -170,6 +224,22 @@ resource "aws_route_table" "private" {
   })
 }
 
+# database route table
+resource "aws_route_table" "database" {
+  count = "${length(var.azs)}"
+
+  vpc_id = "${aws_vpc.main.id}"
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = "${aws_nat_gateway.this.*.id[count.index]}"
+  }
+
+  tags = tomap({
+    "Name" = "${var.name}-database-${var.azs[count.index]}"
+  })
+}
+
 # route table association
 resource "aws_route_table_association" "public" {
   count = "${length(var.public_subnets)}"
@@ -183,4 +253,76 @@ resource "aws_route_table_association" "private" {
 
   subnet_id      = "${aws_subnet.private.*.id[count.index]}"
   route_table_id = "${aws_route_table.private.*.id[count.index]}"
+}
+
+resource "aws_route_table_association" "database" {
+  count = "${length(var.database_subnets)}"
+
+  subnet_id      = "${aws_subnet.database.*.id[count.index]}"
+  route_table_id = "${aws_route_table.private.*.id[count.index]}"
+}
+
+# SG for SSH Connect to Bastion
+resource "aws_security_group" "bastion" {
+  name        = "bastion"
+  description = "Allow SSH connect to bastion instance"
+  vpc_id      = "${aws_vpc.main.id}"
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = tomap({
+    "Name" = "${var.name}-bastion"
+  })
+}
+
+# SG for Connect to Private Subnet from Bastion
+resource "aws_security_group" "ssh_from_bastion" {
+  name        = "ssh_from_bastion"
+  description = "Allow SSH connect from bastion instance"
+  vpc_id      = "${aws_vpc.main.id}"
+
+  ingress {
+    from_port       = 22
+    to_port         = 22
+    protocol        = "tcp"
+    security_groups = [aws_security_group.bastion.id]
+  }
+
+  tags = tomap({
+    "Name" = "${var.name}-ssh-from-bastion"
+  })
+}
+
+# bastion EC2
+resource "aws_instance" "bastion" {
+  ami                    = var.ami
+  instance_type          = var.instance_type
+  availability_zone      = "${var.azs[0]}"
+  subnet_id              = "${aws_subnet.public.*.id[0]}"
+  key_name               = var.keypair_name
+  vpc_security_group_ids = [aws_security_group.bastion.id]
+
+  associate_public_ip_address = true
+
+  tags = tomap({
+    "Name" = "${var.name}-bastion"
+  })
+}
+
+# bastion EIP
+resource "aws_eip" "bastion" {
+  vpc      = true
+  instance = aws_instance.bastion.id
 }
