@@ -13,13 +13,13 @@ ami_filters = [
 ]
 
 # EC2
-instance_type = "t3.micro"
+instance_type = "t2.micro"
 key_name      = "bastion"
 
 target_count = 3
 private_ips  = ["10.0.1.61", "10.0.3.61", "10.0.1.62"]
 
-# httg SG
+# http SG
 http_sg_description      = "HTTP Security group for Bastion EC2 instance"
 http_ingress_cidr_blocks = ["0.0.0.0/0"]
 http_ingress_rules       = ["http-8080-tcp"]

@@ -5,7 +5,7 @@ owner     = "ky.kil"
 tags      = {}
 
 # AMI
-ami_ownser  = ["amazon"]
+ami_owners  = ["amazon"]
 ami_filters = [
   {
     name   = "name"
@@ -14,7 +14,7 @@ ami_filters = [
 ]
 
 # EC2
-instance_type = "t3.micro"
+instance_type = "t2.micro"
 key_name      = "bastion"
 
 # IAM

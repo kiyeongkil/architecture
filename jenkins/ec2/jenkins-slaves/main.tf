@@ -1,5 +1,5 @@
 module "ec2" {
-  count  = length(lcoal.slave_names)
+  count  = length(local.slave_names)
   source = "terraform-aws-modules/ec2-instance/aws"
 
   name = local.slave_names[count.index]
@@ -18,7 +18,7 @@ module "ec2" {
 
 # IAM
 module "iam" {
-  source  = "terraform-aws-modules/iam/aws//module/iam-assumable-role"
+  source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role"
   version = "~> 4.3"
 
   create_role             = true

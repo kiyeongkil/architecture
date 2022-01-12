@@ -1,6 +1,6 @@
 module "ec2" {
   count  = length(local.target_names)
-  source = "terraform-aws-module/ec2-instance/aws"
+  source = "terraform-aws-modules/ec2-instance/aws"
 
   name = local.target_names[count.index]
 
@@ -21,8 +21,24 @@ module "ec2" {
 
 # HTTP SG
 module "sg" {
-  source  = "terraform-aws-module/security-group/aws"
+  source  = "terraform-aws-modules/security-group/aws"
   version = "~> 4.0"
+
+  name        = local.http_sg_name
+  description = local.http_sg_description
+  vpc_id      = local.vpc_id
+
+  ingress_cidr_blocks = local.http_ingress_cidr_blocks
+  ingress_rules       = local.http_ingress_rules
+  egress_rules        = local.http_egress_rules
+
+  tags = local.tags
+}
+
+# IAM
+module "iam" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role"
+  version = "~> 4.3"
 
   create_role             = true
   create_instance_profile = true

@@ -1,7 +1,7 @@
 locals {
   region = var.region
 
-  slave_names = [for cnt in range(0, var.slave_cnt) : format("%s-%s-ce2", var.name, cnt)]
+  slave_names = [for cnt in range(0, var.slave_cnt) : format("%s-%s-ec2", var.name, cnt)]
   role_name   = format("%s-role", var.name)
 
   tags = merge(var.tags, { Owner = var.owner, Environment = var.env })
