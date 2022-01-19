@@ -1,0 +1,25 @@
+installCRD: true
+
+controller:
+  replicas: 1
+
+repoServer:
+  replicas: 1
+
+server:
+  replicas: 1
+  service:
+    type: NodePort
+    namedTargetPort: false
+  ingress:
+    enabled: false
+  extraArgs:
+    - --insecure
+  config:
+    accounts.alice: apiKey, login
+
+redis:
+  enabled: true
+
+redis-ha:
+  enabled: false
