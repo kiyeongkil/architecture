@@ -13,7 +13,7 @@ ami_filters = [
 ]
 
 #EC2
-instance_type = "t2.micro"
+instance_type = "t2.small"
 key_name      = "bastion"
 
 # http sg

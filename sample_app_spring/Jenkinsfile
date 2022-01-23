@@ -1,5 +1,5 @@
 pipeline {
-  agent any
+  agent { label 'master' }
 
   parameters {
     booleanParam(name : 'COMPILE_MVN', defaultValue : true, description: 'COMPILE_MVN')
@@ -28,6 +28,7 @@ pipeline {
 
   stages {
     stage('========== COMPILE_MVN =========='){
+      //agent { label 'slave' }
       when {
         expression { return params.COMPILE_MVN }
       }
@@ -39,6 +40,7 @@ pipeline {
     }
 
     stage('========== BUILD_MVN ==========') {
+      //agent { label 'slave' }
       when {
         expression { return params.BUILD_MVN }
       }
@@ -50,6 +52,7 @@ pipeline {
     }
 
     stage('========== BUILD_DOCKER_IMAGE ==========') {
+      //agent { label 'slave' }
       when {
         expression { return params.BUILD_DOCKER_IMAGE }
       }
@@ -66,6 +69,7 @@ pipeline {
     }
 
     stage('========== PUSH_DOCKER_IMAGE ==========') {
+      //agent { label 'slave' }
       when {
         expression { return params.PUSH_DOCKER_IMAGE }
       }
@@ -79,12 +83,11 @@ pipeline {
     }
 
     stage('========== DEPLOY_WORKLOAD ==========') {
+      agent { label 'master' }
       when { expression { return params.DEPLOY_WORKLOAD } }
       steps {
           sshagent (credentials: ['aws_ec2_user_ssh']) {
             // 비밀번호 입력없이 접속하는 옵션
-              sh "cat /etc/os-release"
-
               sh """#!/bin/bash
                   echo scp
                   scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
