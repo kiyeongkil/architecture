@@ -83,10 +83,15 @@ pipeline {
       steps {
           sshagent (credentials: ['aws_ec2_user_ssh']) {
             // 비밀번호 입력없이 접속하는 옵션
+              sh "cat /etc/os-release"
+
               sh """#!/bin/bash
+                  echo scp
                   scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
-                      deploy/docker-compose.yml \
+                      docker-compose.yaml \
                       ${params.TARGET_SVR_USER}@${params.TARGET_SVR}:${params.TARGET_SVR_PATH};
+
+                  echo ssh
                   ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
                       ${params.TARGET_SVR_USER}@${params.TARGET_SVR} \
                       'aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_REPOSITORY}; \
