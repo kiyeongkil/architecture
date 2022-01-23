@@ -16,8 +16,8 @@ ami_filters = [
 instance_type = "t2.micro"
 key_name      = "bastion"
 
-target_count = 3
-private_ips  = ["10.0.1.61", "10.0.3.61", "10.0.1.62"]
+target_count = 2
+private_ips  = ["10.0.1.61", "10.0.3.61"]
 
 # http SG
 http_sg_description      = "HTTP Security group for Bastion EC2 instance"

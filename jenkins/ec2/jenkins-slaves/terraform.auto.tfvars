@@ -1,6 +1,6 @@
 env       = "dev"
 name      = "jenkins-slave"
-slave_cnt = 2
+slave_cnt = 1
 owner     = "ky.kil"
 tags      = {}
 
