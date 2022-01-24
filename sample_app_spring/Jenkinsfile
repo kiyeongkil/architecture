@@ -24,6 +24,8 @@ pipeline {
     ECR_REPOSITORY = "${params.AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com"
     ECR_DOCKER_IMAGE = "${ECR_REPOSITORY}/${params.DOCKER_IMAGE_NAME}"
     ECR_DOCKER_TAG = "${params.DOCKER_TAG}"
+
+    CODEBUILD_NAME = "jenkins-codebuild"
   }
 
   stages {
@@ -57,9 +59,18 @@ pipeline {
         expression { return params.BUILD_DOCKER_IMAGE }
       }
       steps {
-        dir("${env.WORKSPACE}") {         //jenkins pipeline 구동시 defualt로 세팅되는 환경변수
-          sh 'docker build -t ${ECR_DOCKER_IMAGE}:${ECR_DOCKER_TAG} ./sample_app_spring/'   //dir로 접근하여 sh 명령 수행
-        }
+        // jenkins 사용시 도커빌드 내용
+        // dir("${env.WORKSPACE}") {         //jenkins pipeline 구동시 defualt로 세팅되는 환경변수
+        //   sh 'docker build -t ${ECR_DOCKER_IMAGE}:${ECR_DOCKER_TAG} ./sample_app_spring/'   //dir로 접근하여 sh 명령 수행
+        // }
+        awsCodeBuild(
+          credentialsType: 'keys',
+          region: "${REGION}",
+          projectName: "${CODEBUILD_NAME}",
+          sourceControlType: 'jenkins',
+          sseAlgorithm: 'AES256',
+          buildSpecFile: "sample_app_spring/buildspec.yml"
+        )
       }
       post {
         always {
@@ -68,19 +79,20 @@ pipeline {
       }
     }
 
-    stage('========== PUSH_DOCKER_IMAGE ==========') {
-      //agent { label 'slave' }
-      when {
-        expression { return params.PUSH_DOCKER_IMAGE }
-      }
-      steps {
-        echo "Push Docker Image to ECR"
-        sh '''
-          aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_REPOSITORY}
-          docker push ${ECR_DOCKER_IMAGE}:${ECR_DOCKER_TAG}
-        '''
-      }
-    }
+    // jenkins 사용시 docker hub에 이미지 푸시
+    // stage('========== PUSH_DOCKER_IMAGE ==========') {
+    //   //agent { label 'slave' }
+    //   when {
+    //     expression { return params.PUSH_DOCKER_IMAGE }
+    //   }
+    //   steps {
+    //     echo "Push Docker Image to ECR"
+    //     sh '''
+    //       aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_REPOSITORY}
+    //       docker push ${ECR_DOCKER_IMAGE}:${ECR_DOCKER_TAG}
+    //     '''
+    //   }
+    // }
 
     stage('========== DEPLOY_WORKLOAD ==========') {
       agent { label 'master' }
@@ -89,12 +101,10 @@ pipeline {
           sshagent (credentials: ['aws_ec2_user_ssh']) {
             // 비밀번호 입력없이 접속하는 옵션
               sh """#!/bin/bash
-                  echo scp
                   scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
                       docker-compose.yaml \
                       ${params.TARGET_SVR_USER}@${params.TARGET_SVR}:${params.TARGET_SVR_PATH};
 
-                  echo ssh
                   ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
                       ${params.TARGET_SVR_USER}@${params.TARGET_SVR} \
                       'aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_REPOSITORY}; \

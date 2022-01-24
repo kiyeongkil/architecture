@@ -1,6 +1,6 @@
 env   = "dev"
-name  = "jenkins-slave"
-owner = "dj.kim"
+name  = "jenkins"
+owner = "ky.kil"
 tags  = {}
 
 # iam
@@ -15,7 +15,7 @@ custom_role_policy_arns = [
 # codebuild
 codebuild_timeout   = "10"
 codebuild_source_s3 = "project"
-codebuild_buildspec = "/src/deploy/buildspec.yml"
+codebuild_buildspec = "buildspec.yaml"
 codebuild_envs = {
   compute_type    = "BUILD_GENERAL1_SMALL"
   image           = "aws/codebuild/standard:4.0"

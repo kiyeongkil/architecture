@@ -5,3 +5,4 @@ terraform {
     region      = "ap-northeast-2"
     max_retries = 3
   }
+}

@@ -3,7 +3,7 @@ name  = "jenkins"
 owner = "ky.kil"
 tags  = {}
 
-#AMI
+# AMI
 ami_owners  = ["amazon"]
 ami_filters = [
   {
@@ -12,9 +12,16 @@ ami_filters = [
   }
 ]
 
-#EC2
+# EC2
 instance_type = "t2.small"
 key_name      = "bastion"
+
+# IAM
+trusted_role_services = ["ec2.amazonaws.com"]
+custom_role_policy_arns = [
+  "arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess",
+  "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+]
 
 # http sg
 http_sg_description      = "HTTP Security group for Bastion EC2 instance"
