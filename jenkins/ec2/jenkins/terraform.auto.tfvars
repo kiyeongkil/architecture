@@ -19,8 +19,9 @@ key_name      = "bastion"
 # IAM
 trusted_role_services = ["ec2.amazonaws.com"]
 custom_role_policy_arns = [
+  "arn:aws:iam::aws:policy/AmazonS3FullAccess",
   "arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess",
-  "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+  "arn:aws:iam::aws:policy/AWSCodeDeployFullAccess"
 ]
 
 # http sg

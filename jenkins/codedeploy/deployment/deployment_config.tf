@@ -6,3 +6,4 @@ resource "aws_codedeploy_deployment_config" "this" {
     type  = "HOST_COUNT"
     value = 1
   }
+}
