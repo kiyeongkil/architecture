@@ -1,5 +1,5 @@
 env   = "dev"
-name  = "demo"
+name  = "jenkins"
 owner = "ky.kil"
 tags  = {}
 

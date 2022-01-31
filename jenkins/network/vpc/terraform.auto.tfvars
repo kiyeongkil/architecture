@@ -1,5 +1,5 @@
 env    = "dev"
-name   = "dev"
+name   = "jenkins"
 owner  = "ky.kil"
 region = "ap-northeast-2"
 

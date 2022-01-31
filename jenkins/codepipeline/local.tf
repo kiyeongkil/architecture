@@ -18,11 +18,11 @@ locals {
 
   codepipeline_name                   = format("%s-pipeline", var.name)
   codepipeline_github_connection_name = format("%s-github-connection", var.name)
-  codepipeline_s3_artifact_name       = format("%s-artifact-s3", var.name)
+  codepipeline_s3_artifact_name       = format("%s-artifact-pipeline-s3", var.name)
 
   codepipeline_source_config = {
     ConnectionArn    = aws_codestarconnections_connection.this.arn
-    FullRepositoryId = "dev-chulbuji/devops_sample_app_python"
+    FullRepositoryId = "kiyeongkil/architecture"
     BranchName       = "master"
   }
 
