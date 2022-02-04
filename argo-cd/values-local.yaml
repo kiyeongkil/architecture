@@ -23,17 +23,33 @@ server:
 
     accounts.alice: apiKey, login
 
-  rbacConfig:
+    dex.config: |
+      connectors:
+        - type: github
+          id: github
+          name: GitHub
+          config:
+            clientID: {별도로 Secret 생성하여 관리 권장}
+            clientSecret: {별도로 Secret 생성하여 관리 권장}
+            orgs:
+            - name: prac-by-term
+
+  rbacConfig: {}
     policy.default: role:readonly
     policy.csv: |
       p, role:local-user-admin, applications, *, */*, allow
-      p, role:local-user-admin, clusters, get, *, allow
-      p, role:local-user-admin, repositories, get, *, allow
-      p, role:local-user-admin, repositories, create, *, allow
-      p, role:local-user-admin, repositories, update, *, allow
-      p, role:local-user-admin, repositories, delete, *, allow
+      g, alice, role: local-user-admin
 
-      g, alice, role:local-user-admin
+      p, role:org-devops, applications, *, */*, allow
+      p, role:org-devops, clusters, *, */*, allow
+      p, role:org-devops, repositories, *, *, allow
+      g, prac-by-term:devops, role:org-devops
+
+      p, role:org-dev-BE, applications, get, */*, allow
+      p, role:org-dev-BE, clusters, get, */*, allow
+      p, role:org-dev-BE, repositories, get, *, allow
+      g, prac-by-term:dev-BE, role:org-dev-BE
+
 redis:
   enabled: true
 
