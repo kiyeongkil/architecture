@@ -1,5 +1,10 @@
 repoURL: 'https://github.com/kiyeongkil/architecture.git'
 apps:
+  - name: prac-by-term
+    project: dev
+    namespace: default
+    source:
+      path: prac-by-term
   - name: sample-helm-1
     project: dev
     namespace: default
