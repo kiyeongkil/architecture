@@ -16,8 +16,24 @@ server:
   extraArgs:
     - --insecure
   config:
+    url: http://127.0.0.1:30080
+
+    repositories: |
+      - url: https://github.com/kiyeongkil/architecture.git
+
     accounts.alice: apiKey, login
 
+  rbacConfig:
+    policy.default: role:readonly
+    policy.csv: |
+      p, role:local-user-admin, applications, *, */*, allow
+      p, role:local-user-admin, clusters, get, *, allow
+      p, role:local-user-admin, repositories, get, *, allow
+      p, role:local-user-admin, repositories, create, *, allow
+      p, role:local-user-admin, repositories, update, *, allow
+      p, role:local-user-admin, repositories, delete, *, allow
+
+      g, alice, role:local-user-admin
 redis:
   enabled: true
 
