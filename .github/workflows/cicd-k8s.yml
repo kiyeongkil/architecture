@@ -2,11 +2,9 @@ name: CI/CD
 
 on:
   push:
-    branches: [ master ]
-    paths-ignore:
-      - '.gitignore'
+    branches: [main]
   pull_request:
-    branches: [ master ]
+    branches: [main]
 
 jobs:
   ci:
@@ -41,22 +39,14 @@ jobs:
         run: |
           mvn -Dmaven.test.failure.ignore=true \
             install \
-            -f ./sample_app_spring/pom.xml
+            -f sample_app_spring/pom.xml
 
       - name: Docker image Build
         id: build-image
         run: |
           docker build \
-            -f sample_app_spring/Dockerfile \
+            -f ./sample_app_spring/Dockerfile \
             -t ${{ steps.set-var.outputs.ECR_REGISTRY }}/${{ steps.set-var.outputs.ECR_REPOSITORY }}:${{ steps.set-var.outputs.IMAGE_TAG }} ./sample_app_spring/
-
-      - name: Workload Test
-        id: test
-        run: |
-          docker run \
-            --rm \
-            ${{ steps.set-var.outputs.ECR_REGISTRY }}/${{ steps.set-var.outputs.ECR_REPOSITORY }}:${{ steps.set-var.outputs.IMAGE_TAG }} \
-            echo Test
 
       - name: Docker image Push
         id: push-image
