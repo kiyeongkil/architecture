@@ -79,7 +79,7 @@ jobs:
           git config --global user.email "kiyeongkil@gmail.com"
           git config --global user.name "kiyeongkil"
 
-          git add prac-by-term/values.yaml
+          git add argo/prac-by-term/values.yaml
           git commit --message "Update prac-by-term image tag to $IMAGE_TAG";
           git config -l | grep 'http\..*\.extraheader' | cut -d= -f1 | xargs -L1 git config --unset-all
           git push --prune https://token:$token@github.com/kiyeongkil/architecture.git

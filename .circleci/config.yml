@@ -1,0 +1,80 @@
+version: 2.1
+
+orbs:
+  aws-cli: circleci/aws-cli@2.0.3
+  aws-ecr: circleci/aws-ecr@7.2.0
+
+commands:
+  test:
+    steps:
+      - checkout
+      - run: |
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_ACCOUNT_URL
+      - run: |
+          docker run --rm \
+            $AWS_ECR_ACCOUNT_URL/$APP_NAME:$(cat VERSION) \
+            /root/.local/bin/pytest -v
+      - persist_to_workspace:
+          root: .
+          paths: VERSION
+  cd:
+    steps:
+      - attach_workspace:
+          at: .
+      - run: |
+          export VERSION=`cat VERSION`;
+
+          wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64.tar.gz -O - |\
+            tar xz && sudo mv yq_linux_amd64 /usr/bin/yq;
+
+          git clone https://github.com/kiyeongkil/architecture.git && cd architecture;
+
+          yq eval -i '.image.tag = env(VERSION)' 'argo/prac-by-term/values.yaml';
+
+          git config --global user.email "kilkiyoung@gmail.com";
+          git config --global user.name "kiyeongkil";
+
+          git add argo/prac-by-term/values.yaml
+          git commit --message "Update demo image tag to $VERSION";
+          git push https://$GITHUB_TOKEN@github.com/kiyeongkil/architecture.git;
+
+executors:
+  circleciubuntu:
+    machine:
+      image: ubuntu-2004:202010-01
+
+jobs:
+  test:
+    executor: aws-cli/default
+    steps:
+      - aws-cli/setup:
+          profile-name: default
+      - setup_remote_docker:
+          docker_layer_caching: true
+          version: 20.10.7 # docker version
+      - test
+  deploy:
+    executor: circleciubuntu
+    steps:
+      - cd
+
+workflows:
+  cicd:
+    jobs:
+      - aws-ecr/build-and-push-image:
+          name: build-and-push-image
+          context: AWS
+          checkout: true
+          tag: $(cat VERSION)
+          repo: demo
+          filters:
+            branches:
+              only: release
+      - test:
+          context: AWS
+          requires:
+            - build-and-push-image
+      - deploy:
+          context: GIT
+          requires:
+            - test
