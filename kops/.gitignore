@@ -1,0 +1,8 @@
+iam/
+.direnv
+.envrc
+tmp/
+.terraform/
+.idea/
+terraform.tfstate
+terraform.tfstate.backup
