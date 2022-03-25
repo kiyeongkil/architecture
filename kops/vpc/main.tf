@@ -5,14 +5,18 @@ resource "aws_vpc" "this" {
   enable_dns_support   = true
   instance_tenancy     = "default"
 
-  tags = merge(var.tags, map("Name", format("%s", var.name)))
+  tags = merge(var.tags, tomap({
+    "Name" = "${var.name}"
+  }))
 }
 
 # internet gateway
 resource "aws_internet_gateway" "this" {
   vpc_id = aws_vpc.this.id
 
-  tags = merge(var.tags, map("Name", format("%s", var.name)))
+  tags = merge(var.tags, tomap({
+    "Name" = "${var.name}"
+  }))
 }
 
 # default network ACL
@@ -44,7 +48,9 @@ resource "aws_default_network_acl" "default" {
   )
 
 
-  tags = merge(var.tags, map("Name", format("%s-default", var.name)))
+  tags = merge(var.tags, tomap({
+    "Name" = "${var.name}-default" 
+  }))
 }
 
 # default security group
@@ -65,7 +71,9 @@ resource "aws_default_security_group" "default" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = merge(var.tags, map("Name", format("%s-default", var.name)))
+  tags = merge(var.tags, tomap({
+    "Name" = "${var.name}-default"
+  }))
 }
 
 # public subnet
@@ -76,7 +84,9 @@ resource "aws_subnet" "public" {
   cidr_block        = var.public_subnets[count.index]
   availability_zone = var.azs[count.index]
 
-  tags = merge(var.public_subnet_tags, var.tags, map("Name", format("%s-public-%s", var.name, var.azs_alias[var.azs[count.index]])))
+  tags = merge(var.public_subnet_tags, var.tags, tomap({
+    "Name" = "${var.name}-public-${var.azs[count.index]}"
+  }))
 }
 
 # private subnet
@@ -87,7 +97,9 @@ resource "aws_subnet" "private" {
   cidr_block        = var.private_subnets[count.index]
   availability_zone = var.azs[count.index]
 
-  tags = merge(var.private_subnet_tags, var.tags, map("Name", format("%s-private-%s", var.name, var.azs_alias[var.azs[count.index]])))
+  tags = merge(var.private_subnet_tags, var.tags, tomap({
+    "Name" = "${var.name}-private-${var.azs[count.index]}"
+  }))
 }
 
 # private database subnet
@@ -98,17 +110,9 @@ resource "aws_subnet" "database" {
   cidr_block        = var.database_subnets[count.index]
   availability_zone = var.azs[count.index]
 
-  tags = merge(var.tags, map("Name", format("%s-db-%s", var.name, var.azs_alias[var.azs[count.index]])))
-}
-
-resource "aws_db_subnet_group" "database" {
-  count = length(var.database_subnets) > 0 ? 1 : 0
-
-  name        = var.name
-  description = "Database subnet group for ${var.name}"
-  subnet_ids  = aws_subnet.database[*].id
-
-  tags = merge(var.tags, map("Name", format("%s", var.name)))
+  tags = merge(var.tags, tomap({
+    "Name" = "${var.name}-db-${var.azs[count.index]}"
+  }))
 }
 
 # public route table
@@ -120,7 +124,9 @@ resource "aws_route_table" "public" {
     gateway_id = aws_internet_gateway.this.id
   }
 
-  tags = merge(var.tags, map("Name", format("%s-public", var.name)))
+  tags = merge(var.tags, tomap({
+    "Name" = "${var.name}-public"
+  }))
 }
 
 # private route table
@@ -131,12 +137,12 @@ resource "aws_route_table" "private" {
 
   route {
     cidr_block = "0.0.0.0/0"
-
-    #nat_gateway_id = "${aws_nat_gateway.this.*.id[count.index]}"
     instance_id = aws_instance.bastion.id
   }
 
-  tags = merge(var.tags, map("Name", format("%s-private-%s", var.name, var.azs_alias[var.azs[count.index]])))
+  tags = merge(var.tags, tomap({
+    "Name" = "${var.name}-private-${var.azs[count.index]}"
+  }))
 }
 
 # route table association
@@ -188,7 +194,9 @@ resource "aws_security_group" "bastion" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = merge(var.tags, map("Name", format("%s-bastion", var.name)))
+  tags = merge(var.tags, tomap({
+    "Name" = "${var.name}-bastion"
+  }))
 }
 
 # SG for Connect to Private Subnet from Bastion
@@ -204,7 +212,9 @@ resource "aws_security_group" "ssh_from_bastion" {
     security_groups = [aws_security_group.bastion.id]
   }
 
-  tags = merge(var.tags, map("Name", format("%s-ssh-from-bastion", var.name)))
+  tags = merge(var.tags, tomap({
+    "Name" = "${var.name}-ssh-from-bastion"
+  }))
 }
 
 # bastion EC2
@@ -226,7 +236,9 @@ resource "aws_instance" "bastion" {
 
   iam_instance_profile = var.bastion_instance_profile
 
-  tags = merge(var.tags, map("Name", format("%s-bastion", var.name)))
+  tags = merge(var.tags, tomap({
+    "Name" = "${var.name}-bastion"
+  }))
 }
 
 # bastion EIP

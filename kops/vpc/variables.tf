@@ -28,15 +28,6 @@ variable "azs" {
   type        = list(string)
 }
 
-variable "azs_alias" {
-  description = "availability zones alias"
-  type        = map(string)
-  default     = {
-    "ap-northeast-2a": "a",
-    "ap-northeast-2c": "c",
-  }
-}
-
 variable "tags" {
   description = "모든 리소스에 추가되는 tag 맵"
   type        = map(string)
@@ -61,7 +52,7 @@ variable "bastion_ami" {
 
 variable "bastion_instance_type" {
   description = "bastion EC2 instance type"
-  default     = "t2.nano"
+  default     = "t2.medium"
 }
 
 variable "bastion_availability_zone" {

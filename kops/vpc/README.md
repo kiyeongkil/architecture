@@ -46,7 +46,7 @@ module "vpc" {
 | bastion\_availability\_zone | bastion EC2 instance availability zone | string | - | yes |
 | bastion\_ingress\_cidr\_blocks | bastion SSH 접속을 허용할 CIDR block 리스트 | list | - | yes |
 | bastion\_instance\_profile | bastion 인스턴스에 할당할 instance profile | string | `` | no |
-| bastion\_instance\_type | bastion EC2 instance type | string | `t2.nano` | no |
+| bastion\_instance\_type | bastion EC2 instance type | string | `t2.meduim` | no |
 | bastion\_keypair\_name | bastion이 사용할 keypair name | string | - | yes |
 | bastion\_subnet\_id | bastion EC2 instance Subnet ID | string | - | yes |
 | cidr | VPC에 할당한 CIDR block | string | - | yes |
