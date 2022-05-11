@@ -1,0 +1,20 @@
+version: '3.8'
+services:
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../../config/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
+    environment:
+      GF_LOG_FILTERS: "rendering:debug"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+
+networks:
+  default:
+    external:
+      name: monitoring
+
+
